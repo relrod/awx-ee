@@ -33,6 +33,7 @@ COPY --from=quay.io/ansible/receptor:devel /usr/bin/receptor /usr/bin/receptor
 RUN mkdir -p /var/run/receptor
 ADD run.sh /run.sh
 CMD /run.sh
+RUN curl -Lo /usr/local/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x /usr/local/bin/kubectl
 USER 1000
 RUN git lfs install
 LABEL ansible-execution-environment=true
