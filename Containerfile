@@ -1,5 +1,5 @@
-ARG EE_BASE_IMAGE=quay.io/ansible/ansible-runner:latest
-ARG EE_BUILDER_IMAGE=quay.io/ansible/ansible-builder:latest
+ARG EE_BASE_IMAGE=quay.io/relrod/ansible-runner-stream9:latest
+ARG EE_BUILDER_IMAGE=quay.io/relrod/ansible-builder-stream9:latest
 
 FROM $EE_BASE_IMAGE as galaxy
 ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS=
@@ -28,9 +28,10 @@ COPY --from=galaxy /usr/share/ansible /usr/share/ansible
 
 COPY --from=builder /output/ /output/
 RUN /output/install-from-bindep && rm -rf /output/wheels
-RUN alternatives --set python /usr/bin/python3
 COPY --from=quay.io/ansible/receptor:devel /usr/bin/receptor /usr/bin/receptor
 RUN mkdir -p /var/run/receptor
+RUN pip uninstall -y ansible-core && pip install fallible fallible-compat
+RUN sed -i 's/ansible-core/fallible-compat/' /usr/local/lib/python3.9/site-packages/ansible_runner*.dev64.dist-info/METADATA
 ADD run.sh /run.sh
 CMD /run.sh
 USER 1000
